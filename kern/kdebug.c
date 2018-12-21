@@ -155,6 +155,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		if (stabs[lfun].n_strx < stabstr_end - stabstr)
 			info->eip_fn_name = stabstr + stabs[lfun].n_strx;
 		info->eip_fn_addr = stabs[lfun].n_value;
+		//info->eip_line = stabs[lfun].n_desc;
 		addr -= info->eip_fn_addr;
 		// Search within the function definition for the line number.
 		lline = lfun;
@@ -201,6 +202,13 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		     lline < rfun && stabs[lline].n_type == N_PSYM;
 		     lline++)
 			info->eip_fn_narg++;
+	
+	stab_binsearch(stabs, &lfun, &rfun, N_SLINE, addr - info->eip_fn_addr);
+
+    if (lfun <= rfun)
+    {
+        info->eip_line = stabs[lfun].n_desc;
+    }
 
 	return 0;
 }
